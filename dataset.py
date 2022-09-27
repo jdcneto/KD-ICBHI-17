@@ -78,7 +78,7 @@ def get_base_val_set(meta_csv, audio_path):
     return ds
 
 
-def train_set(normalize, mix_up=True):
+def train_set(mix_up=True):
     ds = get_base_train_set()
     
     if mix_up:
@@ -87,12 +87,12 @@ def train_set(normalize, mix_up=True):
     return ds
 
 
-def test_set(normalize):
+def test_set():
     ds = get_base_test_set()
     
     return ds
 
-def validation_set(normalize):
+def validation_set():
     ds = get_base_test_set()
     
     return ds
