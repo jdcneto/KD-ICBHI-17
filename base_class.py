@@ -1,13 +1,12 @@
 import os
+import numpy as np
 from copy import deepcopy
-
-import time
 import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 from torch.utils.tensorboard import SummaryWriter
-from torch.optim.scheduler import StepLR
-from sklearn.metrics import F1-score, accuracy_score, roc_auc_score, confusion_matrix
+from torch.optim.lr_scheduler import StepLR
+from sklearn.metrics import f1_score, accuracy_score, roc_auc_score, confusion_matrix
 
 
 class BaseClass:
@@ -326,7 +325,8 @@ class BaseClass:
         For internal use only.
        
         """
-        model = self.student_model(load_state_dict("./models/student.pt", map_location=self.device))
+        model = self.student_model()
+        model.load_state_dict(torch.load("./models/student.pt", map_location=self.device))
         model.eval()
         length_of_dataset = len(self.test_loader.dataset)
         correct = 0
