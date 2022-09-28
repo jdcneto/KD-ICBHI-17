@@ -15,7 +15,6 @@ from copy import deepcopy
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
 from timm.models.layers.helpers import to_2tuple
 
 from .helpers.vit_helpers import update_default_cfg_and_kwargs, DropPath, trunc_normal_, build_model_with_cfg
@@ -530,6 +529,11 @@ class PaSST(nn.Module):
         first_RUN = False
         return x, features
 
+def lecun_normal_(tensor: torch.Tensor) -> torch.Tensor:
+    input_size = tensor.shape[-1] # Assuming that the weights' input dimension is the last.
+    std = math.sqrt(1/input_size)
+    with torch.no_grad():
+        return tensor.normal_(-std,std)
 
 def _init_vit_weights(module: nn.Module, name: str = '', head_bias: float = 0., jax_impl: bool = False):
     """ ViT weight initialization
