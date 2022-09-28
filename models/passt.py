@@ -18,7 +18,7 @@ import torch.nn.functional as F
 
 from timm.models.layers.helpers import to_2tuple
 
-from helpers.vit_helpers import update_default_cfg_and_kwargs, DropPath, trunc_normal_, build_model_with_cfg
+from .helpers.vit_helpers import update_default_cfg_and_kwargs, DropPath, trunc_normal_, build_model_with_cfg
 
 _logger = logging.getLogger()
 
