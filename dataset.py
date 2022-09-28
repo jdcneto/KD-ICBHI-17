@@ -63,35 +63,17 @@ class SoundDataset(TorchDataset):
         return waveform, target
 
 
-def get_base_train_set(meta_csv, audio_path):
+def train_set(meta_csv, audio_path, mix_up=True):
     ds = SoundDataset(meta_csv, audio_path)
-    return ds
-
-
-def get_base_test_set(meta_csv, audio_path):
-    ds = SoundDataset(meta_csv, audio_path)
-    return ds
-    
-def get_base_val_set(meta_csv, audio_path):
-    ds = SoundDataset(meta_csv, audio_path)
-    return ds
-
-
-def train_set(mix_up=True):
-    ds = get_base_train_set()
-    
     if mix_up:
         ds = MixupDataset(ds)
-
     return ds
 
 
-def test_set():
-    ds = get_base_test_set()
-    
+def test_set(meta_csv, audio_path):
+    ds = SoundDataset(meta_csv, audio_path)
     return ds
 
-def validation_set():
-    ds = get_base_test_set()
-    
+def validation_set(meta_csv, audio_path):
+    ds = SoundDataset(meta_csv, audio_path)
     return ds
