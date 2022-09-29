@@ -409,7 +409,7 @@ class PaSST(nn.Module):
                                   nn.Linear(self.num_features, num_classes) if num_classes > 0 else nn.Identity())
         self.head_dist = None
         if distilled:
-            self.head_dist = nn.Linear(self.embed_dim, self.num_classes) if num_classes > 0 else nn.Identity()
+            self.head_dist = nn.Sequential(nn.Linear(self.embed_dim, self.num_classes) if num_classes > 0 else nn.Identity())
 
         self.init_weights(weight_init)
 
@@ -446,7 +446,7 @@ class PaSST(nn.Module):
         self.num_classes = num_classes
         self.head = nn.Linear(self.embed_dim, num_classes) if num_classes > 0 else nn.Identity()
         if self.num_tokens == 2:
-            self.head_dist = nn.Linear(self.embed_dim, self.num_classes) if num_classes > 0 else nn.Identity()
+            self.head_dist = nn.Sequential(nn.Linear(self.embed_dim, self.num_classes) if num_classes > 0 else nn.Identity())
 
     def forward_features(self, x):
         global first_RUN  # not jit friendly? use trace instead
