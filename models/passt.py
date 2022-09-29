@@ -268,9 +268,9 @@ class PatchEmbed(nn.Module):
         self.norm = norm_layer(embed_dim) if norm_layer else nn.Identity()
 
     def forward(self, x):
-        B, C, H, W = x.shape
-        if not (H == self.img_size[0] and W == self.img_size[1]):
-            warnings.warn(f"Input image size ({H}*{W}) doesn't match model ({self.img_size[0]}*{self.img_size[1]}).")
+        _, _, H, W = x.shape
+        #if not (H == self.img_size[0] and W == self.img_size[1]):
+           # warnings.warn(f"Input image size ({H}*{W}) doesn't match model ({self.img_size[0]}*{self.img_size[1]}).")
         # to do maybe replace weights
         x = self.proj(x)
         if self.flatten:
@@ -455,54 +455,54 @@ class PaSST(nn.Module):
         B_dim, E_dim, F_dim, T_dim = x.shape  # slow
         if first_RUN: print(" patch_embed : ", x.shape)
         # Adding Time/Freq information
-        if first_RUN: print(" self.time_new_pos_embed.shape", self.time_new_pos_embed.shape)
+        #if first_RUN: print(" self.time_new_pos_embed.shape", self.time_new_pos_embed.shape)
         time_new_pos_embed = self.time_new_pos_embed
         if x.shape[-1] != time_new_pos_embed.shape[-1]:
             time_new_pos_embed = time_new_pos_embed[:, :, :, :x.shape[-1]]
-            if first_RUN: print(" CUT time_new_pos_embed.shape", time_new_pos_embed.shape)
+            #if first_RUN: print(" CUT time_new_pos_embed.shape", time_new_pos_embed.shape)
         x = x + time_new_pos_embed
-        if first_RUN: print(" self.freq_new_pos_embed.shape", self.freq_new_pos_embed.shape)
+        #if first_RUN: print(" self.freq_new_pos_embed.shape", self.freq_new_pos_embed.shape)
         x = x + self.freq_new_pos_embed
 
         # Structured Patchout https://arxiv.org/abs/2110.05069 Section 2.2
         if self.training and self.s_patchout_t:
-            if first_RUN: print(f"X Before time Patchout of {self.s_patchout_t} ", x.size())
+            #if first_RUN: print(f"X Before time Patchout of {self.s_patchout_t} ", x.size())
             # ([1, 768, 1, 82])
             random_indices = torch.randperm(T_dim)[:T_dim - self.s_patchout_t].sort().values
             x = x[:, :, :, random_indices]
-            if first_RUN: print("X after time Patchout", x.size())
+            #if first_RUN: print("X after time Patchout", x.size())
         if self.training and self.s_patchout_f:
-            if first_RUN: print(f"X Before Freq Patchout of {self.s_patchout_f} ", x.size())
+            #if first_RUN: print(f"X Before Freq Patchout of {self.s_patchout_f} ", x.size())
             # [1, 768, 12, 1]
             random_indices = torch.randperm(F_dim)[:F_dim - self.s_patchout_f].sort().values
             x = x[:, :, random_indices, :]
-            if first_RUN: print(" \n X after freq Patchout: ", x.size())
+            #if first_RUN: print(" \n X after freq Patchout: ", x.size())
         ###
         # Flatten the sequence
         x = x.flatten(2).transpose(1, 2)
         # Unstructured Patchout
-        if first_RUN: print("X flattened", x.size())
+        #if first_RUN: print("X flattened", x.size())
         if self.training and self.u_patchout:
             seq_len = x.shape[1]
             random_indices = torch.randperm(seq_len)[:seq_len - self.u_patchout].sort().values
             x = x[:, random_indices, :]
-            if first_RUN: print("X After Unstructured Patchout", x.size())
+            #if first_RUN: print("X After Unstructured Patchout", x.size())
         ####
         # Add the C/D tokens
-        if first_RUN: print(" self.new_pos_embed.shape", self.new_pos_embed.shape)
+        #if first_RUN: print(" self.new_pos_embed.shape", self.new_pos_embed.shape)
         cls_tokens = self.cls_token.expand(B_dim, -1, -1) + self.new_pos_embed[:, :1, :]
-        if first_RUN: print(" self.cls_tokens.shape", cls_tokens.shape)
+        #if first_RUN: print(" self.cls_tokens.shape", cls_tokens.shape)
         if self.dist_token is None:
             x = torch.cat((cls_tokens, x), dim=1)
         else:
             dist_token = self.dist_token.expand(B_dim, -1, -1) + self.new_pos_embed[:, 1:, :]
-            if first_RUN: print(" self.dist_token.shape", dist_token.shape)
+            #if first_RUN: print(" self.dist_token.shape", dist_token.shape)
             x = torch.cat((cls_tokens, dist_token, x), dim=1)
 
-        if first_RUN: print(" final sequence x", x.shape)
+        #if first_RUN: print(" final sequence x", x.shape)
         x = self.pos_drop(x)
         x = self.blocks(x)
-        if first_RUN: print(f" after {len(self.blocks)} atten blocks x", x.shape)
+        #if first_RUN: print(f" after {len(self.blocks)} atten blocks x", x.shape)
         x = self.norm(x)
         if self.dist_token is None:
             return self.pre_logits(x[:, 0])
@@ -511,20 +511,20 @@ class PaSST(nn.Module):
 
     def forward(self, x):
         global first_RUN
-        if first_RUN: print("x", x.size())
+        #if first_RUN: print("x", x.size())
 
         x = self.forward_features(x)
 
         if self.head_dist is not None:
             features = (x[0] + x[1]) / 2
-            if first_RUN: print("forward_features", features.size())
+            #if first_RUN: print("forward_features", features.size())
             x = self.head(features)
-            if first_RUN: print("head", x.size())
+            #if first_RUN: print("head", x.size())
             first_RUN = False
             return x, features
         else:
             features = x
-            if first_RUN: print("forward_features", features.size())
+            #if first_RUN: print("forward_features", features.size())
             x = self.head(x)
         if first_RUN: print("head", x.size())
         first_RUN = False
@@ -816,5 +816,4 @@ def get_model(arch="passt_s_swa_p16_128_ap476", pretrained=True, n_classes=527, 
                        img_size=input_size, stride=stride, u_patchout=u_patchout,
                        s_patchout_t=s_patchout_t, s_patchout_f=s_patchout_f)
     model = fix_embedding_layer(model)
-    print(model)
     return model
