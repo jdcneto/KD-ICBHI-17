@@ -71,7 +71,6 @@ def update_default_cfg_and_kwargs(default_cfg, kwargs, kwargs_filter):
     filter_kwargs(kwargs, names=kwargs_filter)
 
 
-
 def drop_path(x, drop_prob: float = 0., training: bool = False):
     """Drop paths (Stochastic Depth) per sample (when applied in main path of residual blocks).
 
@@ -101,7 +100,6 @@ class DropPath(nn.Module):
 
     def forward(self, x):
         return drop_path(x, self.drop_prob, self.training)
-
 
 
 from torch.nn.init import _calculate_fan_in_and_fan_out
