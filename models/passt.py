@@ -334,7 +334,7 @@ class PaSST(nn.Module):
 
     """
 
-    def __init__(self, u_patchout=0, s_patchout_t=0, s_patchout_f=0, img_size=(128, 998), patch_size=16, stride=16,
+    def __init__(self, u_patchout=0, s_patchout_t=0, s_patchout_f=0, img_size=(128, 256), patch_size=16, stride=16,
                  in_chans=1, num_classes=527, embed_dim=768, depth=12,
                  num_heads=12, mlp_ratio=4., qkv_bias=True, representation_size=None, distilled=False,
                  drop_rate=0., attn_drop_rate=0., drop_path_rate=0., embed_layer=PatchEmbed, norm_layer=None,
