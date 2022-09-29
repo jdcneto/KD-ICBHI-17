@@ -276,7 +276,6 @@ class PatchEmbed(nn.Module):
         if self.flatten:
             x = x.flatten(2).transpose(1, 2)  # BCHW -> BNC
         x = self.norm(x)
-        if first_RUN: print("self.norm(x)", x.size())
         return x
 
 
@@ -675,11 +674,11 @@ def passt_s_swa_p16_128_ap476(pretrained=False, **kwargs):
     """ DeiT-base distilled model @ 384x384 from paper (https://arxiv.org/abs/2012.12877).
     ImageNet-1k weights from https://github.com/facebookresearch/deit.
     """
-    print("\n\n Loading PASST TRAINED ON AUDISET \n\n")
     model_kwargs = dict(patch_size=16, embed_dim=768, depth=12, num_heads=12, **kwargs)
     model = _create_vision_transformer(
         'passt_s_swa_p16_128_ap476', pretrained=pretrained, distilled=True, **model_kwargs)
     return model
+
 
 def passt_s_p16_s16_128_ap468(pretrained=False, **kwargs):
     """ PaSST pre-trained on AudioSet
@@ -704,6 +703,7 @@ def passt_s_swa_f128_stfthop100_p16_s10_ap473(pretrained=False, **kwargs):
         'passt_s_swa_f128_stfthop100_p16_s10_ap473', pretrained=pretrained, distilled=True, **model_kwargs)
     return model
 
+
 def passt_s_swa_f128_stfthop160_p16_s10_ap473(pretrained=False, **kwargs):
     """ DeiT-base distilled model @ 384x384 from paper (https://arxiv.org/abs/2012.12877).
     ImageNet-1k weights from https://github.com/facebookresearch/deit.
@@ -714,6 +714,7 @@ def passt_s_swa_f128_stfthop160_p16_s10_ap473(pretrained=False, **kwargs):
         'passt_s_swa_f128_stfthop160_p16_s10_ap473', pretrained=pretrained, distilled=True, **model_kwargs)
     return model
 
+
 def openmic2008_passt_u_f128_p16_s10_ap85_swa(pretrained=False, **kwargs):
     """ DeiT-base distilled model @ 384x384 from paper (https://arxiv.org/abs/2012.12877).
     ImageNet-1k weights from https://github.com/facebookresearch/deit.
@@ -723,7 +724,6 @@ def openmic2008_passt_u_f128_p16_s10_ap85_swa(pretrained=False, **kwargs):
     model = _create_vision_transformer(
         'openmic2008_passt_u_f128_p16_s10_ap85_swa', pretrained=pretrained, distilled=True, **model_kwargs)
     return model
-
 
 
 def passt_s_f128_20sec_p16_s10_ap474_swa(pretrained=False, **kwargs):
