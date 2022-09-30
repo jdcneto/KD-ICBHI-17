@@ -295,7 +295,7 @@ class BaseClass:
 
         if verbose:
             print("-" * 80)
-            print("Validation Accuracy: {.2%} | Validation Loss {.2}".format(accuracy, loss))
+            print("Validation Accuracy: {:.2%} | Validation Loss {:.2f}".format(accuracy, loss))
         return loss, accuracy
 
     def evaluate(self, teacher=False):
