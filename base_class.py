@@ -56,7 +56,7 @@ class BaseClass:
         if self.log:
             self.writer = SummaryWriter(logdir)
 
-        self.device = "cuda" if torch.cuda.is_available else "cpu"
+        self.device = "cuda:0" if torch.cuda.is_available else "cpu"
         
         if teacher_model:
             self.teacher_model = teacher_model.to(self.device)
@@ -101,6 +101,7 @@ class BaseClass:
             correct = 0
             for (data, label) in self.train_loader:
                 data = data.to(self.device)
+                label = label.type(torch.LongTensor)
                 label = label.to(self.device)
                 out = self.teacher_model(data)
 
@@ -183,6 +184,7 @@ class BaseClass:
             for (data, label) in self.train_loader:
 
                 data = data.to(self.device)
+                label = label.type(torch.LongTensor)
                 label = label.to(self.device)
 
                 student_out = self.student_model(data)
@@ -276,6 +278,7 @@ class BaseClass:
         with torch.no_grad():
             for data, target in self.val_loader:
                 data = data.to(self.device)
+                target = target.type(torch.LongTensor)
                 target = target.to(self.device)
                 output = model(data)
                 
@@ -330,6 +333,7 @@ class BaseClass:
         with torch.no_grad():
             for data, target in self.test_loader:
                 data = data.to(self.device)
+                target = target.type(torch.LongTensor)
                 target = target.to(self.device)
                 output = model(data)
                 
