@@ -60,7 +60,7 @@ class SoundDataset(TorchDataset):
         wave_path = os.path.join(self.audiopath, row.filename)
         waveform, _ = torchaudio.load(wave_path)
         target = row.id
-        return waveform, target
+        return waveform.squeeze(0), target
 
 
 def train_set(meta_csv, audio_path, mix_up=True):
