@@ -66,7 +66,8 @@ class BaseClass:
         self.student_model = student_model.to(self.device)
         self.loss_fn = loss_fn
         self.ce_fn = nn.CrossEntropyLoss()
-
+    
+    ### Train Teacher
     def train_teacher(
         self,
         epochs=20,
@@ -119,7 +120,7 @@ class BaseClass:
             epoch_acc = correct / length_of_dataset
             epoch_loss = epoch_loss/length_of_dataset
 
-            epoch_val_acc = self.evaluate(teacher=True)
+            epoch_val_loss, epoch_val_acc = self._evaluate(teacher=True)
 
             if epoch_val_acc > best_acc:
                 best_acc = epoch_val_acc
@@ -130,14 +131,12 @@ class BaseClass:
             if self.log:
                 self.writer.add_scalar("Training loss/Teacher", epoch_loss, epochs)
                 self.writer.add_scalar("Training accuracy/Teacher", epoch_acc, epochs)
+                self.writer.add_scalar("Validation loss/Teacher", epoch_val_loss, epochs)
                 self.writer.add_scalar("Validation accuracy/Teacher", epoch_val_acc, epochs)
 
             loss_arr.append(epoch_loss)
-            print(
-                "Epoch: {}, Loss: {}, Accuracy: {}".format(
-                    ep + 1, epoch_loss, epoch_acc
-                )
-            )
+            print("Epoch: {} | Train Loss: {:.2f}, Train Accuracy: {:.2f} | Validation Loss: {:.2f}, Validation Accuracy: {:.2f}".format(ep + 1, epoch_loss, 
+            epoch_acc, epoch_val_loss, epoch_val_accuracy))
 
             self.post_epoch_call(ep)
             scheduler.step()
@@ -147,7 +146,8 @@ class BaseClass:
             torch.save(self.teacher_model.state_dict(), save_model_pth)
         if plot_losses:
             plt.plot(loss_arr)
-
+    
+    ### Train Student
     def _train_student(
         self,
         epochs=10,
@@ -261,7 +261,7 @@ class BaseClass:
 
         raise NotImplementedError
 
-    def _evaluate_model(self, model, verbose=True):
+    def _evaluate_model(self, model, verbose=False):
         """
         Evaluate the given model's accuracy over val set.
         For internal use only.
