@@ -33,7 +33,6 @@ class VanillaKD(BaseClass):
         loss_fn=nn.MSELoss(),
         temp=20.0,
         distil_weight=0.5,
-        device="cpu",
         log=False,
         logdir="./Experiments",
     ):
@@ -47,7 +46,6 @@ class VanillaKD(BaseClass):
             loss_fn,
             temp,
             distil_weight,
-            device,
             log,
             logdir,
         )
