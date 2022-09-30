@@ -136,7 +136,7 @@ class BaseClass:
 
             loss_arr.append(epoch_loss)
             print("Teacher Stats --> Epoch: {} | Train Loss: {:.2f}, Train Accuracy: {:.2f} | Validation Loss: {:.2f}, Validation Accuracy: {:.2f}".format(ep + 1, epoch_loss, 
-            epoch_acc, epoch_val_loss, epoch_val_accuracy))
+            epoch_acc, epoch_val_loss, epoch_val_acc))
 
             self.post_epoch_call(ep)
             scheduler.step()
@@ -220,7 +220,7 @@ class BaseClass:
 
             loss_arr.append(epoch_loss)
             print("Student Stats --> Epoch: {} | Train Loss: {:.2f}, Train Accuracy: {:.2f} | Validation Loss: {:.2f}, Validation Accuracy: {:.2f}".format(ep + 1, epoch_loss, 
-            epoch_acc, epoch_val_loss, epoch_val_accuracy))
+            epoch_acc, epoch_val_loss, epoch_val_acc))
             
             scheduler.step()
 
