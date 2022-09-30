@@ -39,7 +39,6 @@ class BaseClass:
         loss_fn=nn.KLDivLoss(),
         temp=20.0,
         distil_weight=0.5,
-        device="cpu",
         log=False,
         logdir="./Experiments",
     ):
@@ -57,7 +56,7 @@ class BaseClass:
         if self.log:
             self.writer = SummaryWriter(logdir)
 
-        self.device = torch.device(device=device)
+        self.device = "cuda" if torch.cuda.is_available else "cpu"
         
         if teacher_model:
             self.teacher_model = teacher_model.to(self.device)
@@ -65,8 +64,8 @@ class BaseClass:
             print("Warning!!! Teacher is NONE.")
 
         self.student_model = student_model.to(self.device)
-        self.loss_fn = loss_fn.to(self.device)
-        self.ce_fn = nn.CrossEntropyLoss().to(self.device)
+        self.loss_fn = loss_fn
+        self.ce_fn = nn.CrossEntropyLoss()
 
     def train_teacher(
         self,
@@ -95,7 +94,7 @@ class BaseClass:
             
         print("Training Teacher... ")
         
-        scheduler = StepLR(self.optimizer_teacher.step(), step=50, gamma=0.5)
+        scheduler = StepLR(self.optimizer_teacher, step_size=50, gamma=0.5)
 
         for ep in range(epochs):
             epoch_loss = 0.0
@@ -176,7 +175,7 @@ class BaseClass:
 
         print("Training Student...")
 
-        scheduler = StepLR(self.optimizer_student.step(), step=50, gamma=0.5)
+        scheduler = StepLR(self.optimizer_student, step=50, gamma=0.5)
         for ep in range(epochs):
             epoch_loss = 0.0
             correct = 0
