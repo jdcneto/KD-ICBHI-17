@@ -120,7 +120,7 @@ class BaseClass:
             epoch_acc = correct / length_of_dataset
             epoch_loss = epoch_loss/length_of_dataset
 
-            epoch_val_loss, epoch_val_acc = self._evaluate(teacher=True)
+            epoch_val_loss, epoch_val_acc = self._evaluate_model(self.teacher_model)
 
             if epoch_val_acc > best_acc:
                 best_acc = epoch_val_acc
@@ -135,7 +135,7 @@ class BaseClass:
                 self.writer.add_scalar("Validation accuracy/Teacher", epoch_val_acc, epochs)
 
             loss_arr.append(epoch_loss)
-            print("Epoch: {} | Train Loss: {:.2f}, Train Accuracy: {:.2f} | Validation Loss: {:.2f}, Validation Accuracy: {:.2f}".format(ep + 1, epoch_loss, 
+            print("Teacher Stats --> Epoch: {} | Train Loss: {:.2f}, Train Accuracy: {:.2f} | Validation Loss: {:.2f}, Validation Accuracy: {:.2f}".format(ep + 1, epoch_loss, 
             epoch_acc, epoch_val_loss, epoch_val_accuracy))
 
             self.post_epoch_call(ep)
@@ -204,7 +204,7 @@ class BaseClass:
             epoch_acc = correct / length_of_dataset
             epoch_loss = epoch_loss/length_of_dataset
 
-            epoch_val_loss, epoch_val_acc = self._evaluate_model(self.student_model, verbose=True)
+            epoch_val_loss, epoch_val_acc = self._evaluate_model(self.student_model)
 
             if epoch_val_acc > best_acc:
                 best_acc = epoch_val_acc
@@ -219,11 +219,8 @@ class BaseClass:
                 self.writer.add_scalar("Validation loss/Student", epoch_val_loss, epochs)
 
             loss_arr.append(epoch_loss)
-            print(
-                "Epoch: {}, Loss: {}, Accuracy: {}".format(
-                    ep + 1, epoch_loss, epoch_acc
-                )
-            )
+            print("Student Stats --> Epoch: {} | Train Loss: {:.2f}, Train Accuracy: {:.2f} | Validation Loss: {:.2f}, Validation Accuracy: {:.2f}".format(ep + 1, epoch_loss, 
+            epoch_acc, epoch_val_loss, epoch_val_accuracy))
             
             scheduler.step()
 
