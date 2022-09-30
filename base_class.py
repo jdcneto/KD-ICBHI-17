@@ -176,7 +176,7 @@ class BaseClass:
 
         print("Training Student...")
 
-        scheduler = StepLR(self.optimizer_student, step=50, gamma=0.5)
+        scheduler = StepLR(self.optimizer_student, step_size=50, gamma=0.5)
         for ep in range(epochs):
             epoch_loss = 0.0
             correct = 0
