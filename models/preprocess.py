@@ -9,7 +9,7 @@ epsilon = 10e-8  # fudge factor for normalization
 
 
 class AugmentMelSTFT(nn.Module):
-    def __init__(self, n_mels=128, sr=32000, win_length=640, hopsize=625, n_fft=1024, freqm=48, timem=192,
+    def __init__(self, n_mels=128, sr=32000, win_length=800, hopsize=320, n_fft=1024, freqm=48, timem=192,
                  htk=False, fmin=0.0, fmax=None, norm=1, fmin_aug_range=1, fmax_aug_range=1000):
         torch.nn.Module.__init__(self)
         # adapted from: https://github.com/CPJKU/kagglebirds2020/commit/70f8308b39011b09d41eb0f4ace5aa7d2b0e806e
