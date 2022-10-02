@@ -74,7 +74,7 @@ class BaseClass:
         epochs=20,
         plot_losses=True,
         save_model=True,
-        save_model_pth="./Experiments/models/teacher.pt",
+        save_model_pth="./modelos/teacher.pt",
     ):
         """
         Function that will be training the teacher
@@ -155,7 +155,7 @@ class BaseClass:
         epochs=10,
         plot_losses=True,
         save_model=True,
-        save_model_pth="./Experiments/models/student.pt",
+        save_model_pth="./modelos/student.pt",
     ):
         """
         Function to train student model - for internal use only.
@@ -249,6 +249,8 @@ class BaseClass:
         """
         self._train_student(epochs, plot_losses, save_model, save_model_pth)
 
+        self.writer.close()
+
     def calculate_kd_loss(self, y_pred_student, y_pred_teacher, y_true):
         """
         Custom loss function to calculate the KD loss for various implementations
@@ -303,10 +305,10 @@ class BaseClass:
         """
         if model=='student':
             model = self.student_model()
-            model.load_state_dict(torch.load(".Experiments/models/student.pt", map_location=self.device))
+            model.load_state_dict(torch.load("./modelos/student.pt", map_location=self.device))
         elif model=='teacher':
             model = self.teacher_model()
-            model.load_state_dict(torch.load(".Experiments/models/teacher.pt", map_location=self.device))
+            model.load_state_dict(torch.load("./modelos/teacher.pt", map_location=self.device))
         else:
             raise NotImplementedError
 
