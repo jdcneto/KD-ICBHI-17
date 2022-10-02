@@ -3,6 +3,7 @@ import numpy as np
 from copy import deepcopy
 import matplotlib.pyplot as plt
 import torch
+from tqdm import tqdm
 import torch.nn as nn
 from torch.utils.tensorboard import SummaryWriter
 from torch.optim.lr_scheduler import StepLR
@@ -39,7 +40,7 @@ class BaseClass:
         loss_fn=nn.KLDivLoss(),
         temp=20.0,
         distil_weight=0.5,
-        log=False,
+        log=True,
         logdir="./Experiments",
     ):
 
@@ -73,7 +74,7 @@ class BaseClass:
         epochs=20,
         plot_losses=True,
         save_model=True,
-        save_model_pth="./models/teacher.pt",
+        save_model_pth="./Experiments/models/teacher.pt",
     ):
         """
         Function that will be training the teacher
@@ -97,9 +98,9 @@ class BaseClass:
         
         scheduler = StepLR(self.optimizer_teacher, step_size=50, gamma=0.5)
 
-        for ep in range(epochs):
+        for ep in tqdm(range(epochs)):
             epoch_loss = 0.0
-            correct = 0
+            correct = 0.0
             for (data, label) in self.train_loader:
                 data = data.to(self.device)
                 label = label.type(torch.LongTensor)
@@ -107,20 +108,20 @@ class BaseClass:
                 out = self.teacher_model(data)
 
                 pred = out.argmax(dim=1, keepdim=True)
-                correct += pred.eq(label.view_as(pred)).sum().item()
+                correct += pred.eq(label).sum().item()
 
                 loss = self.ce_fn(out, label)
 
-                self.optimizer_teacher.zero_grad()
                 loss.backward()
                 self.optimizer_teacher.step()
+                self.optimizer_teacher.zero_grad()
 
                 epoch_loss += loss.item()*label.size(0)
 
             epoch_acc = correct / length_of_dataset
             epoch_loss = epoch_loss/length_of_dataset
 
-            epoch_val_loss, epoch_val_acc = self._evaluate_model(self.teacher_model)
+            epoch_val_loss, epoch_val_acc = self.evaluate_model(self.teacher_model)
 
             if epoch_val_acc > best_acc:
                 best_acc = epoch_val_acc
@@ -146,6 +147,7 @@ class BaseClass:
             torch.save(self.teacher_model.state_dict(), save_model_pth)
         if plot_losses:
             plt.plot(loss_arr)
+
     
     ### Train Student
     def _train_student(
@@ -153,7 +155,7 @@ class BaseClass:
         epochs=10,
         plot_losses=True,
         save_model=True,
-        save_model_pth="./models/student.pt",
+        save_model_pth="./Experiments/models/student.pt",
     ):
         """
         Function to train student model - for internal use only.
@@ -177,7 +179,7 @@ class BaseClass:
         print("Training Student...")
 
         scheduler = StepLR(self.optimizer_student, step_size=50, gamma=0.5)
-        for ep in range(epochs):
+        for ep in tqdm(range(epochs)):
             epoch_loss = 0.0
             correct = 0
 
@@ -193,18 +195,18 @@ class BaseClass:
                 loss = self.calculate_kd_loss(student_out, teacher_out, label)
 
                 pred = student_out.argmax(dim=1, keepdim=True)
-                correct += pred.eq(label.view_as(pred)).sum().item()
+                correct += pred.eq(label).sum().item()
 
-                self.optimizer_student.zero_grad()
                 loss.backward()
                 self.optimizer_student.step()
-
+                self.optimizer_student.zero_grad()
+            
                 epoch_loss += loss.item()*label.size(0)
 
             epoch_acc = correct / length_of_dataset
             epoch_loss = epoch_loss/length_of_dataset
 
-            epoch_val_loss, epoch_val_acc = self._evaluate_model(self.student_model)
+            epoch_val_loss, epoch_val_acc = self.evaluate_model(self.student_model)
 
             if epoch_val_acc > best_acc:
                 best_acc = epoch_val_acc
@@ -235,7 +237,7 @@ class BaseClass:
         epochs=10,
         plot_losses=True,
         save_model=True,
-        save_model_pth="./models/student.pt",
+        save_model_pth=".Experiments/models/student.pt",
     ):
         """
         Function that will be training the student
@@ -258,7 +260,7 @@ class BaseClass:
 
         raise NotImplementedError
 
-    def _evaluate_model(self, model, verbose=False):
+    def evaluate_model(self, model):
         """
         Evaluate the given model's accuracy over val set.
         For internal use only.
@@ -285,43 +287,33 @@ class BaseClass:
                 outputs.append(output)
 
                 pred = output.argmax(dim=1, keepdim=True)
-                correct += pred.eq(target.view_as(pred)).sum().item()
+                correct += pred.eq(target).sum().item()
 
         accuracy = correct / length_of_dataset
         loss = epoch_loss/length_of_dataset
 
-        if verbose:
-            print("-" * 80)
-            print("Validation Accuracy: {:.2%} | Validation Loss {:.2f}".format(accuracy, loss))
         return loss, accuracy
 
-    def evaluate(self, teacher=False):
-        """
-        Evaluate method for printing accuracies of the trained network
-
-        :param teacher (bool): True if you want accuracy of the teacher network
-        """
-        if teacher:
-            model = deepcopy(self.teacher_model).to(self.device)
-        else:
-            model = deepcopy(self.student_model).to(self.device)
-        loss, accuracy = self._evaluate_model(model)
-
-        return accuracy, loss
         
-    def inference(self):
+    def inference(self, model='student'):
         """
         Evaluate the student model's accuracy over test set.
         For internal use only.
        
         """
-        model = self.student_model()
-        model.load_state_dict(torch.load("./models/student.pt", map_location=self.device))
+        if model=='student':
+            model = self.student_model()
+            model.load_state_dict(torch.load(".Experiments/models/student.pt", map_location=self.device))
+        elif model=='teacher':
+            model = self.teacher_model()
+            model.load_state_dict(torch.load(".Experiments/models/teacher.pt", map_location=self.device))
+        else:
+            raise NotImplementedError
+
         model.eval()
         length_of_dataset = len(self.test_loader.dataset)
         correct = 0
         test_loss = 0
-        outputs = []
         
         score_list   = []
         pred_list    = []
@@ -380,7 +372,6 @@ class BaseClass:
                         "Specificity":TNR.mean(),
                         "Score": Score}
         
-        print('Inference Finished in') 
         return metrics_dict     
        
                
@@ -394,13 +385,3 @@ class BaseClass:
         print("-" * 80)
         print("Total parameters for the teacher network are: {}".format(teacher_params))
         print("Total parameters for the student network are: {}".format(student_params))
-
-    def post_epoch_call(self, epoch):
-        """
-        Any changes to be made after an epoch is completed.
-
-        :param epoch (int) : current epoch number
-        :return            : nothing (void)
-        """
-
-        pass
