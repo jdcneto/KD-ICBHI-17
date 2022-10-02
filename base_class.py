@@ -59,11 +59,11 @@ class BaseClass:
         self.device = "cuda:0" if torch.cuda.is_available else "cpu"
         
         if teacher_model:
-            self.teacher_model = teacher_model.to(self.device)
+            self.teacher_model = teacher_model
         else:
             print("Warning!!! Teacher is NONE.")
 
-        self.student_model = student_model.to(self.device)
+        self.student_model = student_model
         self.loss_fn = loss_fn
         self.ce_fn = nn.CrossEntropyLoss()
     
@@ -83,6 +83,9 @@ class BaseClass:
         :param save_model (bool): True if you want to save the teacher model
         :param save_model_pth (str): Path where you want to store the teacher model
         """
+
+        self.teacher_model.to(self.device)
+        
         self.teacher_model.train()
         loss_arr = []
         length_of_dataset = len(self.train_loader.dataset)
