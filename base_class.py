@@ -3,7 +3,6 @@ import numpy as np
 from copy import deepcopy
 import matplotlib.pyplot as plt
 import torch
-from tqdm import tqdm
 import torch.nn as nn
 from torch.utils.tensorboard import SummaryWriter
 from torch.optim.lr_scheduler import StepLR
@@ -98,7 +97,7 @@ class BaseClass:
         
         scheduler = StepLR(self.optimizer_teacher, step_size=50, gamma=0.5)
 
-        for ep in tqdm(range(epochs)):
+        for ep in range(epochs):
             epoch_loss = 0.0
             correct = 0.0
             for (data, label) in self.train_loader:
@@ -139,7 +138,6 @@ class BaseClass:
             print("Teacher Stats --> Epoch: {} | Train Loss: {:.2f}, Train Accuracy: {:.2f} | Validation Loss: {:.2f}, Validation Accuracy: {:.2f}".format(ep + 1, epoch_loss, 
             epoch_acc, epoch_val_loss, epoch_val_acc))
 
-            self.post_epoch_call(ep)
             scheduler.step()
 
         self.teacher_model.load_state_dict(self.best_teacher_model_weights)
@@ -155,7 +153,7 @@ class BaseClass:
         epochs=10,
         plot_losses=True,
         save_model=True,
-        save_model_pth="./modelos/student.pt",
+        save_model_pth="./modelos/student.pt"
     ):
         """
         Function to train student model - for internal use only.
@@ -179,7 +177,7 @@ class BaseClass:
         print("Training Student...")
 
         scheduler = StepLR(self.optimizer_student, step_size=50, gamma=0.5)
-        for ep in tqdm(range(epochs)):
+        for ep in range(epochs):
             epoch_loss = 0.0
             correct = 0
 
@@ -237,7 +235,7 @@ class BaseClass:
         epochs=10,
         plot_losses=True,
         save_model=True,
-        save_model_pth=".Experiments/models/student.pt",
+        save_model_pth="./modelos/student.pt"
     ):
         """
         Function that will be training the student
