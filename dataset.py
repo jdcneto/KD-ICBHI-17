@@ -36,12 +36,11 @@ class MixupDataset(TorchDataset):
 
 
 class SoundDataset(TorchDataset):
-    def __init__(self, meta_csv,  audiopath):
+    def __init__(self, df,  audiopath):
         """
         Reads the wave file from and returns a array and It's respective class
         """
-        self.meta_csv = meta_csv
-        self.df = pd.read_csv(meta_csv)
+        self.df = df
         self.audiopath = audiopath
   
     def __len__(self):
@@ -63,18 +62,8 @@ class SoundDataset(TorchDataset):
         return waveform.squeeze(0), target
 
 
-def train_set(meta_csv, audio_path, mix_up=True):
-    ds = SoundDataset(meta_csv, audio_path)
+def Loader(df, audio_path, mix_up=True):
+    ds = SoundDataset(df, audio_path)
     if mix_up:
         ds = MixupDataset(ds)
-    return ds
-
-
-def test_set(meta_csv, audio_path):
-    ds = SoundDataset(meta_csv, audio_path)
-    return ds
-    
-
-def validation_set(meta_csv, audio_path):
-    ds = SoundDataset(meta_csv, audio_path)
     return ds
