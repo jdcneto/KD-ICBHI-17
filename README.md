@@ -1,8 +1,8 @@
 # Summary
 This repo contain the experiments in the project Lung Sound Classification using MobileVit and Knoledge Distillation.
 1. The teacher model you can find [here](https://github.com/qiuqiangkong/audioset_tagging_cnn)
-2. The weights you can download in [here] (https://www.dropbox.com/sh/si61g3j69rvuw0w/AAAdHObq3_9G4QBKzgaJLIcUa?dl=0)
-3. The all dataset and information about it can be found [here] (https://bhichallenge.med.auth.gr/ICBHI_2017_Challenge)
+2. The weights you can download in [here](https://www.dropbox.com/sh/si61g3j69rvuw0w/AAAdHObq3_9G4QBKzgaJLIcUa?dl=0)
+3. The all dataset and information about it can be found [here](https://bhichallenge.med.auth.gr/ICBHI_2017_Challenge)
 
 # How to run
 We disponibilize two notebooks:
