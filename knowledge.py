@@ -1,3 +1,4 @@
+import os
 import torch
 import numpy as np
 import torch.nn as nn
@@ -32,12 +33,10 @@ class KD():
     
     self.teacher = self.teacher.to(self.device)
     self.student = self.student.to(self.device)
-    self.teacher_dir = teacher_dir
-    self.student_dir = student_dir
-    self.dir = dir
+    self.path = path
     
-    if not os.path.exists(self.dir):
-        os.makedirs(self.dir)
+    if not os.path.exists(self.path):
+        os.makedirs(self.path)
   
   
   def KD_loss(self, y_pred_student, y_pred_teacher, y_true):
@@ -92,19 +91,17 @@ class KD():
     return loss
     
   
-  def fit_teacher(self, epochs=100, patience=15, Verbose=True):
-        loss_hist_train = [0] * epochs
+  def fit_teacher(self, epochs=100, patience=15, verbose=True):
+    loss_hist_train = [0] * epochs
     accuracy_hist_train = [0] * epochs
     loss_hist_valid = [0] * epochs
     accuracy_hist_valid = [0] * epochs
     y_pred = []
     y_true = []
-    best_acc = 0.0
-    best_score = 0.0
-    teacher_path = os.path.join(self.dir, 'teacher.pt')
+    teacher_path = os.path.join(self.path, 'teacher.pt')
 
     # initialize the early stopping 
-    early_stopping = EarlyStopping(patience=patience, verbose=verbose, path=self.teacher_dir)
+    early_stopping = EarlyStopping(patience=patience, verbose=verbose, path=self.teacher_path)
 
     for epoch in range(epochs):
         # Train 
@@ -179,7 +176,7 @@ class KD():
     return loss_hist_train, loss_hist_valid, accuracy_hist_train, accuracy_hist_valid
   
   
-  def fit_student(self, epochs=100, patience=15, Verbose=True):
+  def fit_student(self, epochs=100, patience=15, verbose=True):
     loss_hist_train = [0] * epochs
     accuracy_hist_train = [0] * epochs
     loss_hist_valid = [0] * epochs
@@ -189,7 +186,7 @@ class KD():
     best_acc = 0.0
     self.teacher.load.state_dict(self.teacher_dir)
     # initialize the early stopping 
-    self.student_path = os.path.join(self.dir, 'student.pt')
+    self.student_path = os.path.join(self.path, 'student.pt')
     
     early_stopping = EarlyStopping(patience=patience, verbose=verbose, path=self.student_path)
 
@@ -203,8 +200,6 @@ class KD():
             pred_s = self.student(x_batch)
             pred_t = self.teacher(x_batch)
             # Loss 
-            #loss = self.KL_loss(pred_s, pred_t, y_batch)
-            #loss = self.KD_loss(pred_s, pred_t, y_batch)
             loss = self.CMKD_loss(pred_s, pred_t, y_batch)
             loss.backward()
             self.opt_student.step()
@@ -328,14 +323,14 @@ class KD():
     # put values into dictionary
     metrics_dict = {"Accuracy": Accuracy,
                   "F1-score": F1_score,
-                  "Roc_AUC":Roc_AUC,
+                  "Roc_AUC": Roc_AUC,
                   "Loss": test_loss/length_of_dataset,
-                  "CM":cnf_matrix,
-                  "Target":target_list,
-                  "Predict":pred_list,
-                  "Sensitivity":TPR.mean(),
-                  "Specificity":TNR.mean(),
+                  "CM": cnf_matrix,
+                  "Target": target_list,
+                  "Predict": pred_list,
+                  "Sensitivity": TPR.mean(),
+                  "Specificity": TNR.mean(),
                   "Score": Score}
     
    
-   return metrics_dict
+    return metrics_dict
