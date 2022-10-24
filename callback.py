@@ -22,7 +22,7 @@ class EarlyStopping:
         self.early_stop = False
         self.score_min = 0
         self.path = path
-        self.trace_func = trace_func
+
     def __call__(self, val_score, model):
 
         if self.best_score is None:
@@ -40,6 +40,6 @@ class EarlyStopping:
     def save_checkpoint(self, val_score, model):
         '''Saves model when validation loss decrease.'''
         if self.verbose:
-            self.trace_func(f'Average Score Decreased ({self.score_min:.4f} --> {val_score:.4f}).  Saving model ...')
+           print(f'Average Score Decreased ({self.score_min:.4f} --> {val_score:.4f}).  Saving model ...')
         torch.save(model.state_dict(), self.path)
         self.score_min = val_score
