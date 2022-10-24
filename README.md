@@ -6,7 +6,7 @@ This repo contain the experiments in the project Lung Sound Classification using
 
 # How to run
 We disponibilize two notebooks:
-1. In the Creating_Database.ipynb is show how preprossing the dataset
+1. In the Creating_Database.ipynb is show how preprocessing the dataset
 2. The train.ipynb is a example of how to run the knoledge distillation.
 3. Feel free to make changes and improvements.
 
@@ -14,3 +14,5 @@ We disponibilize two notebooks:
 1. torchlibrosa 0.0.9
 2. pytorch 1.12.1+cu116
 3. transformers 4.23.1
+
+Have Fun!!!
