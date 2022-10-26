@@ -1,9 +1,11 @@
+import os
+import wget
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torchlibrosa.stft import Spectrogram, LogmelFilterBank
 from torchlibrosa.augmentation import SpecAugmentation
-from utils import do_mixup, ConvBlock, ConvBlock5x5
+from utils import do_mixup, ConvBlock, ConvPreWavBlock
  
 
 def init_layer(layer):
@@ -134,37 +136,41 @@ class backbone(nn.Module):
         
         
 class Wavegram_Logmel_Cnn14(nn.Module):
-        def __init__(self, num_classes=4, audioset_trained=True, icbhi_trained=False)
-        super.__init__()
-        self.num_classes = num_classes
-        
-        self.net = backbone()
-        if audioset_trained:
-            if os.path.exists('../../pretrained_models/Wavegram_Logmel_Cnn14_mAP=0.439.pth') == False:
-                # this model performs 0.4593 mAP on the audioset eval set
-                mdl_url = 'https://www.dropbox.com/s/wd5dhk2o3oukyv2/Wavegram_Logmel_Cnn14_mAP%3D0.439.pth?dl=0'
-                wget.download(mdl_url, out='../../pretrained_models/Wavegram_Logmel_Cnn14_mAP=0.439.pth')
-            state_dict = torch.load('../../pretrained_models/Wavegram_Logmel_Cnn14_mAP=0.439.pth')
-            self.net.load_state_dict(state_dict['model'])
-            in_features = self.net.fc_audioset.in_features
-            self.net.fc_audioset = nn.Linear(in_features,num_classes)
+        def __init__(self, num_classes=4, audioset_trained=False, icbhi_trained=True):
+            """
+        Args:
+            num_classes (int): number of classes
+                            Default: 4
+            audioset_trained (bool): If True, download the model pretrained on audioset.
+                            Defaul: 0
+            icbhi_trained (bool): If True, load the model pretrained on ICBHI.
+                            Default: 1
+        """
+            super().__init__()
+            self.num_classes = num_classes
             
-        elif icbhi_trained:
-            in_features = self.net.fc_audioset.in_features
-            self.net.fc_audioset = nn.Linear(in_features,num_classes)
+            self.net = backbone()
+            if not os.path.exists('trained'):
+                os.mkdir('trained')
+
+            if audioset_trained:
+                mdl_url = 'state_dict = https://www.dropbox.com/s/wd5dhk2o3oukyv2/Wavegram_Logmel_Cnn14_mAP%3D0.439.pth?dl=0'
+                state_dict = torch.hub.load_state_dict_from_url(mdl_url)
+                self.net.load_state_dict(state_dict['model'])
+                in_features = self.net.fc_audioset.in_features
+                self.net.fc_audioset = nn.Linear(in_features,num_classes)
+                
+            elif icbhi_trained:
+                in_features = self.net.fc_audioset.in_features
+                self.net.fc_audioset = nn.Linear(in_features,num_classes)
+                state_dict = torch.load('trained/icbhi_trained.pt')
+                self.net.load_state_dict(state_dict)
+                
+            else:
+                return NotImplementedError
             
-            if os.path.exists('../../pretrained_models/student.pth') == False:
-                # this model performs 0.4593 mAP on the audioset eval set
-                mdl_url = 'https://www.dropbox.com/s/p4xxwmlrn9c3ku0/student.pt?dl=0'
-                wget.download(mdl_url, out='../../pretrained_models/student.pt')
-            state_dict = torch.load('../../pretrained_models/student.pt')
-            self.net.load_state_dict(state_dict)
-            
-        else:
-            return NotImplementedError
-        
         def forward(self, x):
-            x = self.net 
-            return x
+                x = self.net 
+                return x
             
         
