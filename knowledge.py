@@ -3,8 +3,9 @@ import torch
 import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
-from sklearn.metrics import f1_score, roc_auc_score, accuracy_score, confusion_matrix
 from callback import EarlyStopping
+from sklearn.metrics import f1_score, roc_auc_score, accuracy_score, confusion_matrix
+
 
 
 class KD():
@@ -16,7 +17,7 @@ class KD():
                opt_student,
                temp,
                alpha,
-               path='trained/'
+               dir='trained/'
                
                ):
     
@@ -33,10 +34,10 @@ class KD():
     
     self.teacher = self.teacher.to(self.device)
     self.student = self.student.to(self.device)
-    self.path = path
+    self.dir = dir
     
-    if not os.path.exists(self.path):
-        os.makedirs(self.path)
+    if not os.path.exists(self.dir):
+        os.makedirs(self.dir)
   
   
   def KD_loss(self, y_pred_student, y_pred_teacher, y_true):
@@ -98,10 +99,10 @@ class KD():
     accuracy_hist_valid = [0] * epochs
     y_pred = []
     y_true = []
-    teacher_path = os.path.join(self.path, 'teacher.pt')
+    teacher_path = os.path.join(self.dir, 'teacher.pt')
 
     # initialize the early stopping 
-    early_stopping = EarlyStopping(patience=patience, verbose=verbose, path=self.teacher_path)
+    early_stopping = EarlyStopping(patience=patience, verbose=verbose, path=teacher_path)
 
     for epoch in range(epochs):
         # Train 
@@ -183,10 +184,9 @@ class KD():
     accuracy_hist_valid = [0] * epochs
     y_pred = []
     y_true = []
-    best_acc = 0.0
     self.teacher.load.state_dict(self.teacher_dir)
     # initialize the early stopping 
-    self.student_path = os.path.join(self.path, 'student.pt')
+    self.student_path = os.path.join(self.dir, 'student.pt')
     
     early_stopping = EarlyStopping(patience=patience, verbose=verbose, path=self.student_path)
 
@@ -200,6 +200,8 @@ class KD():
             pred_s = self.student(x_batch)
             pred_t = self.teacher(x_batch)
             # Loss 
+            #loss = self.KL_loss(pred_s, pred_t, y_batch)
+            #loss = self.KD_loss(pred_s, pred_t, y_batch)
             loss = self.CMKD_loss(pred_s, pred_t, y_batch)
             loss.backward()
             self.opt_student.step()
@@ -323,13 +325,13 @@ class KD():
     # put values into dictionary
     metrics_dict = {"Accuracy": Accuracy,
                   "F1-score": F1_score,
-                  "Roc_AUC": Roc_AUC,
+                  "Roc_AUC":Roc_AUC,
                   "Loss": test_loss/length_of_dataset,
-                  "CM": cnf_matrix,
-                  "Target": target_list,
-                  "Predict": pred_list,
-                  "Sensitivity": TPR.mean(),
-                  "Specificity": TNR.mean(),
+                  "CM":cnf_matrix,
+                  "Target":target_list,
+                  "Predict":pred_list,
+                  "Sensitivity":TPR.mean(),
+                  "Specificity":TNR.mean(),
                   "Score": Score}
     
    
